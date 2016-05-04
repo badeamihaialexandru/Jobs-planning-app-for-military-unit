@@ -1,5 +1,4 @@
 #include <windows.h>
-
 const char g_szClassName[] = "myWindowClass";
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -12,11 +11,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	case WM_LBUTTONDOWN:
-	{
-						   MessageBox(NULL, "Goodbye, cruel world!", "Note", MB_OK);
-						   break;
-	}
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
@@ -43,11 +37,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 	if (!RegisterClassEx(&wc))
 	{
-		MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "Window Registration Failed!", "Error!",
+			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 	// Step 2: Creating the Window
-	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, g_szClassName, "The title of my window", 0, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		g_szClassName,
+		"The academy organizer",
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,
+		NULL, NULL, hInstance, NULL);
 	if (hwnd == NULL)
 	{
 		MessageBox(NULL, "Window Creation Failed!", "Error!",
@@ -59,10 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	// Step 3: The Message Loop
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
-		//comentariu
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
 	return Msg.wParam;
-
 }
