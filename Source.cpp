@@ -1,9 +1,9 @@
 #include <windows.h>
 #include<stdio.h>
 const char g_szClassName[] = "myWindowClass";
-typedef struct NOD { NOD* st;
-					 NOD* dr;
+typedef struct NOD { 
 					 char nume[20];
+					 NOD* dr, *st;
 };
 NOD* radacina;
 void citire_nume(FILE* fisier,NOD* &radacina)
@@ -17,6 +17,7 @@ void citire_nume(FILE* fisier,NOD* &radacina)
 		i++;
 	}
 
+
 }
 HWND textfield, button,textbox;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -26,11 +27,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		{
 	case WM_CREATE:
-		textfield = CreateWindow("STATIC", "Servicii U.M. ATM", WS_VISIBLE | WS_CHILD, 20, 20, 300, 20, hwnd, NULL, NULL, NULL);
+		textfield = CreateWindow("STATIC", "Servicii U.M. ATM", WS_VISIBLE | WS_CHILD  , 20, 20, 300, 20, hwnd, NULL, NULL, NULL);
 		button = CreateWindow("BUTTON", "Generare Plantoane", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 50, 200, 20, hwnd,NULL, NULL,NULL);
-		button = CreateWindow("BUTTON", "Generare Paza", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 80, 200, 20, hwnd, NULL, NULL, NULL);
+		button = CreateWindow("BUTTON", "Generare Paza", WS_VISIBLE | WS_CHILD | WS_BORDER , 20, 80, 200, 20, hwnd, NULL, NULL, NULL);
 		textbox = CreateWindow("EDIT", "Introduceti numele studentului", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 110, 200, 20,hwnd,NULL,NULL,NULL);
-		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240,110, 70, 20, hwnd, NULL, NULL, NULL);
+		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240,110, 70, 20, hwnd, (HMENU) 1, NULL, NULL);
 		break;
 	
 	case WM_INITDIALOG:
@@ -38,12 +39,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case IDOK:
-			EndDialog(hwnd, IDOK);
+		case 1:
+			::MessageBeep(MB_ICONERROR);
+			::MessageBox(hwnd, "Studentul nu a fost gasit!", "Rezultatul cautarii", MB_OK);
 			break;
-		case IDCANCEL:
-			EndDialog(hwnd, IDCANCEL);
-			break;
+		
 		}
 		break;
 	case WM_CLOSE:
@@ -60,20 +60,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 }
-HWND WINAPI CreateWindowEx(
-	_In_     DWORD     dwExStyle,
-	_In_opt_ LPCTSTR   lpClassName,
-	_In_opt_ LPCTSTR   lpWindowName,
-	_In_     DWORD     dwStyle,
-	_In_     int       x[30],
-	_In_     int       y[30],
-	_In_     int       nWidth[10],
-	_In_     int       nHeight[10],
-	_In_opt_ HWND      hWndParent,
-	_In_opt_ HMENU     hMenu,
-	_In_opt_ HINSTANCE hInstance,
-	_In_opt_ LPVOID    lpParam
-	);
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
