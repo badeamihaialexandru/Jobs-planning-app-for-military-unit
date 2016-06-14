@@ -10,18 +10,20 @@ int luna;
 int max;
 char szClassName[] = "TextEntry";
 char textSaved[20];
+char textSaved2[20];
 const char g_szClassName[] = "myWindowClass";
 
 #define IDM_FILE_NEW 1
-#define IDM_FILE_OPEN 2
+#define IDM_FILE_OPEN 17
 #define IDM_FILE_QUIT 3
 #define plantoane 4
 #define hai 5
 #define verifica 6
+#define deschide 7
 void AddMenus(HWND hwnd);
 void creare_arbore(char *f);
 
-HWND textfield, button,textbox;
+HWND textfield, button,textbox,txtbox;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -29,63 +31,113 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		{
 	case WM_CREATE:
-		textfield = CreateWindow("STATIC", "Servicii U.M. ATM", WS_VISIBLE | WS_CHILD  , 20, 20, 300, 20, hwnd, NULL, NULL, NULL);
+		textfield = CreateWindow("STATIC", "Servicii U.M. ATM", WS_VISIBLE | WS_CHILD, 20, 20, 300, 20, hwnd, NULL, NULL, NULL);
 		//button = CreateWindow("BUTTON", "Genereaza servicii", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 50, 200, 20, hwnd, (HMENU) plantoane, NULL, NULL);
-		button = CreateWindow("BUTTON", "Genereaza servicii", WS_VISIBLE | WS_CHILD | WS_BORDER , 20, 80, 200, 20, hwnd, (HMENU)plantoane, NULL, NULL);
-		textbox = CreateWindow("EDIT", "Introduceti numele studentului", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 110, 200, 20, hwnd, NULL, NULL, NULL);
-		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240,110, 70, 20, hwnd, (HMENU) verifica, NULL, NULL);
+		button = CreateWindow("BUTTON", "Genereaza servicii", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 80, 200, 20, hwnd, (HMENU)plantoane, NULL, NULL);
+		txtbox = CreateWindow("EDIT", "Introduceti numele studentului", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 110, 200, 20, hwnd, NULL, NULL, NULL);
+		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240, 110, 70, 20, hwnd, (HMENU) verifica, NULL, NULL);
+		button = CreateWindow("BUTTON", "Deschide fisierul!", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 140,200, 20, hwnd, (HMENU) deschide, NULL, NULL);
 		textbox = CreateWindow("EDIT", "Luna_in_cifre", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 50, 200, 20, hwnd, NULL, NULL, NULL);
-		CreateWindow("BUTTON", "Hai!", WS_VISIBLE | WS_CHILD | WS_BORDER,240,50,70,20,hwnd,(HMENU) hai,NULL,NULL );
+		CreateWindow("BUTTON", "Hai!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240, 50, 70, 20, hwnd, (HMENU)hai, NULL, NULL);
 
 		AddMenus(hwnd);
-		
+
 		break;
-	
+
 	case WM_INITDIALOG:
 		return TRUE;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
+
+		case deschide:
+		{
+						 system("c:");
+						 system("cd users\badea\downloads");
+						 system("organizare.txt");
+						 break;
+		}
+
 		case verifica:
-			::MessageBeep(MB_ICONERROR);
-			::MessageBox(hwnd, "Studentul nu a fost gasit!", "Rezultatul cautarii", MB_OK);
-			break;
+		{
+						 int ok = 0;
+						 char* calendar = (char*)calloc(1,sizeof(char));
+						 int gytstat = 0;
+						 char* nm = &textSaved2[0];
+						 gytstat = GetWindowText(txtbox, nm, 20);
+						 for (int i = 0; i < max; i++)
+						 {
+
+							 for (int j = 0; j < 3; j++)
+							 if (strstr(organizare[i]->plan[j], nm))
+							 {
+								 _itoa(i+1, calendar, 10);
+								 strcat(calendar, ".");
+								 char month[2];
+								 _itoa(luna+1, month, 10);
+								 strcat(calendar, month);
+								 strcat(calendar, ".2016");
+								 ::MessageBox(hwnd,calendar,"Planton!!!", MB_OK);
+								 ok = 1;
+							 }
+							 for (int k = 0; k < 6; k++)
+							 if (strstr(organizare[i]->pza[k], nm))
+							 {
+								 _itoa(i+1, calendar, 10);
+								 strcat(calendar, ".");
+								 char month[2];
+								 _itoa(luna+1, month, 10);
+								 strcat(calendar, month);
+								 strcat(calendar, ".2016");
+								 ::MessageBox(hwnd, calendar, "Paza!!!", MB_OK);
+								 ok = 1;
+							 }
+						 }
+						 if (ok == 0)
+						 {
+							 ::MessageBeep(MB_ICONERROR);
+							 ::MessageBox(hwnd, "Studentul nu a fost gasit!", "Rezultatul cautarii", MB_OK);
+							 break;
+						 }
+						 break;
+		}
 		case plantoane:
 		{
-				  calculare_min(rad);
-				  alocare(max);
-				  while (t < max)
-				  {
-					  min = 100;
-					  calculare_min(rad);
-					  afisare_plantoane(rad, min, max, t);
-				  }
-				  while (j < max)
-				  {
-					  min = 100;
-					  calculare_min(rad);
-					  afisare_paza(rad, min, max);
-				  }
-				  pf = fopen("organizare.txt", "w");
-				  fclose(pf);
-				  pof = fopen("organizare.txt", "a");
-				  fprintf(pof, "Luna %d \n\n",luna);
-				  scrie_in_fisier(max,pof);
-				  ::MessageBox(hwnd, "Organizarea s-a incheiat !", "Bau!", MB_OK);
-				  ::MessageBeep(MB_COMPOSITE);
-				 // for (int i = 0; i < 3;i++)
-					 // MessageBox(hwnd, planton[i], "Student", MB_OK);
-				  break;
+						  calculare_min(rad);
+						  alocare(max);
+						  while (t < max)
+						  {
+							  min = 100;
+							  calculare_min(rad);
+							  afisare_plantoane(rad, min, max, t);
+						  }
+						  while (j < max)
+						  {
+							  min = 100;
+							  calculare_min(rad);
+							  afisare_paza(rad, min, max);
+						  }
+						  pf = fopen("organizare.txt", "w");
+						  fclose(pf);
+						  pof = fopen("organizare.txt", "a");
+						  fprintf(pof, "Luna %d \n\n", luna);
+						  scrie_in_fisier(max, pof);
+						  ::MessageBox(hwnd, "Organizarea s-a incheiat !", "Bau!", MB_OK);
+						  ::MessageBeep(MB_COMPOSITE);
+						  // for (int i = 0; i < 3;i++)
+						  // MessageBox(hwnd, planton[i], "Student", MB_OK);
+						  break;
 		}
 		case hai:
 		{
-					int gwtstat=0;
+					int gwtstat = 0;
 					char* t = &textSaved[0];
 					gwtstat = GetWindowText(textbox, t, 20);
 					luna = atoi(t) - 1;
 					max = contor[luna];
 					break;
 		}
+
 
 		case IDM_FILE_OPEN:
 		{
@@ -111,7 +163,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			SendMessage(hwnd, WM_CLOSE, 0, 0);
 			break;
-		
+
 		}
 		break;
 
