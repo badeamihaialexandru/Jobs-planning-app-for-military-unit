@@ -54,8 +54,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 				  calculare_min(rad);
 				  alocare(max);
-				  afisare_plantoane(rad, min,max);
-				  afisare_paza(rad, min,max);
+				  while (t < max)
+				  {
+					  min = 100;
+					  calculare_min(rad);
+					  afisare_plantoane(rad, min, max, t);
+				  }
+				  while (j < max)
+				  {
+					  min = 100;
+					  calculare_min(rad);
+					  afisare_paza(rad, min, max);
+				  }
 				  pf = fopen("organizare.txt", "w");
 				  fclose(pf);
 				  pof = fopen("organizare.txt", "a");
