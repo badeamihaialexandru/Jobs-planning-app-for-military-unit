@@ -4,37 +4,23 @@
 #include <tchar.h>
 #include"codc.h"
 #pragma once
+jsw_node* rad;
+FILE* pof,*pf;
+int luna;
+int max;
+char szClassName[] = "TextEntry";
+char textSaved[20];
 const char g_szClassName[] = "myWindowClass";
 
 #define IDM_FILE_NEW 1
 #define IDM_FILE_OPEN 2
 #define IDM_FILE_QUIT 3
+#define plantoane 4
+#define hai 5
+#define verifica 6
 void AddMenus(HWND hwnd);
 void creare_arbore(char *f);
-/*
-struct jsw_node
-{
-	char data[20];
-	int level;
-	struct jsw_node *st, *dr;
-};
 
-struct jsw_node *nil;
-
-*/
-/*void citire_nume(FILE* fisier,jsw_node* &radacina)
-{
-	char nm[100][20];
-	fopen("nume.txt", "r");
-	int i = 0;
-	while (!(feof))
-	{
-		fgets(nm[i], 20, fisier);
-		i++;
-	}
-
-
-}*/
 HWND textfield, button,textbox;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -44,10 +30,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 	case WM_CREATE:
 		textfield = CreateWindow("STATIC", "Servicii U.M. ATM", WS_VISIBLE | WS_CHILD  , 20, 20, 300, 20, hwnd, NULL, NULL, NULL);
-		button = CreateWindow("BUTTON", "Generare Plantoane", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 50, 200, 20, hwnd,NULL, NULL,NULL);
-		button = CreateWindow("BUTTON", "Generare Paza", WS_VISIBLE | WS_CHILD | WS_BORDER , 20, 80, 200, 20, hwnd, NULL, NULL, NULL);
-		textbox = CreateWindow("EDIT", "Introduceti numele studentului", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 110, 200, 20,hwnd,NULL,NULL,NULL);
-		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240,110, 70, 20, hwnd, (HMENU) 1, NULL, NULL);
+		//button = CreateWindow("BUTTON", "Genereaza servicii", WS_VISIBLE | WS_CHILD | WS_BORDER, 20, 50, 200, 20, hwnd, (HMENU) plantoane, NULL, NULL);
+		button = CreateWindow("BUTTON", "Genereaza servicii", WS_VISIBLE | WS_CHILD | WS_BORDER , 20, 80, 200, 20, hwnd, (HMENU)plantoane, NULL, NULL);
+		textbox = CreateWindow("EDIT", "Introduceti numele studentului", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 110, 200, 20, hwnd, NULL, NULL, NULL);
+		button = CreateWindow("BUTTON", "Verifica!", WS_VISIBLE | WS_CHILD | WS_BORDER, 240,110, 70, 20, hwnd, (HMENU) verifica, NULL, NULL);
+		textbox = CreateWindow("EDIT", "Luna_in_cifre", WS_BORDER | WS_CHILD | WS_VISIBLE, 20, 50, 200, 20, hwnd, NULL, NULL, NULL);
+		CreateWindow("BUTTON", "Hai!", WS_VISIBLE | WS_CHILD | WS_BORDER,240,50,70,20,hwnd,(HMENU) hai,NULL,NULL );
+
 		AddMenus(hwnd);
 		
 		break;
@@ -57,10 +46,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case 1:
+		case verifica:
 			::MessageBeep(MB_ICONERROR);
 			::MessageBox(hwnd, "Studentul nu a fost gasit!", "Rezultatul cautarii", MB_OK);
 			break;
+		case plantoane:
+		{
+				  calculare_min(rad);
+				  alocare(max);
+				  afisare_plantoane(rad, min,max);
+				  afisare_paza(rad, min,max);
+				  pf = fopen("organizare.txt", "w");
+				  fclose(pf);
+				  pof = fopen("organizare.txt", "a");
+				  fprintf(pof, "Luna %d \n\n",luna);
+				  scrie_in_fisier(max,pof);
+				  ::MessageBox(hwnd, "Organizarea s-a incheiat !", "Bau!", MB_OK);
+				  ::MessageBeep(MB_COMPOSITE);
+				 // for (int i = 0; i < 3;i++)
+					 // MessageBox(hwnd, planton[i], "Student", MB_OK);
+				  break;
+		}
+		case hai:
+		{
+					int gwtstat=0;
+					char* t = &textSaved[0];
+					gwtstat = GetWindowText(textbox, t, 20);
+					luna = atoi(t) - 1;
+					max = contor[luna];
+					break;
+		}
 
 		case IDM_FILE_OPEN:
 		{
@@ -78,7 +93,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							  {
 								  creare_arbore(szFileName);
 							  }
+							  break;
 		}
+
 
 		case IDM_FILE_QUIT:
 
@@ -87,6 +104,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		
 		}
 		break;
+
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
@@ -170,88 +188,10 @@ void AddMenus(HWND hwnd) {
 }
 HWND hwnd;
 
-/*
-// mai jos creez arborele 
-struct jsw_node *split(struct jsw_node *root)
-{
-	if (root == NULL)
-		return root;
-	else
-	if (root->dr == NULL)
-		return root;
-	else
-	if (root->dr->dr == NULL)
-		return root;
-	if (root->dr->dr->level == root->level && root->level != 0)
-	{
-		struct jsw_node *save = root;
-		root = root->dr;
-		save->dr = root->st;
-		root->st = save;
-		++root->level;
-		root->dr = split(root->dr);
-	}
-}
-struct jsw_node *skew(struct jsw_node *root)
-{
-	if (root == NULL)
-		return NULL;
-	if ((root->level != 0) && (root->st != NULL))
-	{
-		if (root->st->level == root->level)
-		{
-			struct jsw_node *save = root;
 
-			root = root->st;
-			save->st = root->dr;
-			root->dr = save;
-		}
 
-		root->dr = skew(root->dr);
-	}
+	
 
-	return root;
-}
-struct jsw_node *make_node(char data[20], int level)
-{
-	struct jsw_node *rn = (jsw_node*)calloc(1, sizeof *rn);
-
-	if (rn == NULL)
-	{
-		return NULL;
-	}
-	strcpy(rn->data, data);
-	rn->level = level;
-	rn->st = rn->dr = nil;
-
-	return rn;
-}
-struct jsw_node *jsw_insert(struct jsw_node *root, char  data[20])
-{
-	if (root == nil)
-	{
-		return make_node(data, 1);
-	}
-	else
-	{
-		//modifica
-		if (strcmp(data, root->data)<0)
-		{
-			root->st = jsw_insert(root->st, data);
-			root = skew(root);
-			root = split(root);
-		}
-		else
-		{
-			root->dr = jsw_insert(root->dr, data);
-			root = skew(root);
-			root = split(root);
-		}
-	}
-
-	return root;
-}*/
-jsw_node* rad;
 
 void creare_arbore(char *f)
 {
@@ -262,7 +202,7 @@ void creare_arbore(char *f)
 	{
 		fgets(nume, 20, pf);
 		rad = jsw_insert(rad, nume);
-		//MessageBox(hwnd, nume, "Student", MB_OK);
+		
 	}
 }
 
