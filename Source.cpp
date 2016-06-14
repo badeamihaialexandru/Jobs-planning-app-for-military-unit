@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include <Commdlg.h>
 #include <tchar.h>
+#include"codc.h"
 #pragma once
 const char g_szClassName[] = "myWindowClass";
 
@@ -10,14 +11,18 @@ const char g_szClassName[] = "myWindowClass";
 #define IDM_FILE_QUIT 3
 void AddMenus(HWND hwnd);
 void creare_arbore(char *f);
-
-
-typedef struct NOD { 
-					 char nume[20];
-					 NOD* dr, *st;
+/*
+struct jsw_node
+{
+	char data[20];
+	int level;
+	struct jsw_node *st, *dr;
 };
-NOD* radacina;
-void citire_nume(FILE* fisier,NOD* &radacina)
+
+struct jsw_node *nil;
+
+*/
+/*void citire_nume(FILE* fisier,jsw_node* &radacina)
 {
 	char nm[100][20];
 	fopen("nume.txt", "r");
@@ -29,7 +34,7 @@ void citire_nume(FILE* fisier,NOD* &radacina)
 	}
 
 
-}
+}*/
 HWND textfield, button,textbox;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -164,6 +169,90 @@ void AddMenus(HWND hwnd) {
 	SetMenu(hwnd, hMenubar);
 }
 HWND hwnd;
+
+/*
+// mai jos creez arborele 
+struct jsw_node *split(struct jsw_node *root)
+{
+	if (root == NULL)
+		return root;
+	else
+	if (root->dr == NULL)
+		return root;
+	else
+	if (root->dr->dr == NULL)
+		return root;
+	if (root->dr->dr->level == root->level && root->level != 0)
+	{
+		struct jsw_node *save = root;
+		root = root->dr;
+		save->dr = root->st;
+		root->st = save;
+		++root->level;
+		root->dr = split(root->dr);
+	}
+}
+struct jsw_node *skew(struct jsw_node *root)
+{
+	if (root == NULL)
+		return NULL;
+	if ((root->level != 0) && (root->st != NULL))
+	{
+		if (root->st->level == root->level)
+		{
+			struct jsw_node *save = root;
+
+			root = root->st;
+			save->st = root->dr;
+			root->dr = save;
+		}
+
+		root->dr = skew(root->dr);
+	}
+
+	return root;
+}
+struct jsw_node *make_node(char data[20], int level)
+{
+	struct jsw_node *rn = (jsw_node*)calloc(1, sizeof *rn);
+
+	if (rn == NULL)
+	{
+		return NULL;
+	}
+	strcpy(rn->data, data);
+	rn->level = level;
+	rn->st = rn->dr = nil;
+
+	return rn;
+}
+struct jsw_node *jsw_insert(struct jsw_node *root, char  data[20])
+{
+	if (root == nil)
+	{
+		return make_node(data, 1);
+	}
+	else
+	{
+		//modifica
+		if (strcmp(data, root->data)<0)
+		{
+			root->st = jsw_insert(root->st, data);
+			root = skew(root);
+			root = split(root);
+		}
+		else
+		{
+			root->dr = jsw_insert(root->dr, data);
+			root = skew(root);
+			root = split(root);
+		}
+	}
+
+	return root;
+}*/
+jsw_node* rad;
+
 void creare_arbore(char *f)
 {
 	char nume[30];
@@ -171,7 +260,9 @@ void creare_arbore(char *f)
 	pf = fopen(f, "r");
 	while (!(feof(pf)))
 	{
-		fgets(nume, 30, pf);
-		MessageBox(hwnd, nume, "Student", MB_OK);
+		fgets(nume, 20, pf);
+		rad = jsw_insert(rad, nume);
+		//MessageBox(hwnd, nume, "Student", MB_OK);
 	}
 }
+
